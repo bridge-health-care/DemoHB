@@ -38,18 +38,13 @@ class MainActivity : AppCompatActivity() {
         arrayListOf(
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.RECORD_AUDIO,
-            android.Manifest.permission.MODIFY_AUDIO_SETTINGS,
-            android.Manifest.permission.CAPTURE_AUDIO_OUTPUT,
             android.Manifest.permission.READ_MEDIA_AUDIO,
-            android.Manifest.permission.READ_MEDIA_VIDEO,
             android.Manifest.permission.READ_MEDIA_IMAGES,
         )
     } else {
         arrayListOf(
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.RECORD_AUDIO,
-            android.Manifest.permission.MODIFY_AUDIO_SETTINGS,
-            android.Manifest.permission.CAPTURE_AUDIO_OUTPUT,
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
@@ -115,6 +110,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     if (someDenied) {
+                        Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show()
                         appSettingOpen(this)
                     } else {
                         warningPermissionDialog(this){ _:DialogInterface, which:Int ->
