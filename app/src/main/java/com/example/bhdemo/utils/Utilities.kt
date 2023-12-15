@@ -10,8 +10,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 class Utilities {
 
     companion object {
-        const val PERMISSION_CAMERA_REQUEST_CODE = 1
-        const val REQUEST_CODE_WRITE_STORAGE = 101
         const val MULTIPLE_PERMISSION_ID = 14
 
         fun appSettingOpen(context: Context) {
