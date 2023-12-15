@@ -6,20 +6,55 @@ import android.Manifest.permission.MODIFY_AUDIO_SETTINGS
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.RECORD_AUDIO
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-import androidx.appcompat.app.AppCompatActivity
+import android.app.Activity
+import android.content.ContentValues
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.IntentSender
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.PackageManagerCompat
 import com.example.bhdemo.databinding.ActivityMainBinding
+import com.example.bhdemo.utils.Utilities
+import com.example.bhdemo.utils.Utilities.Companion.MULTIPLE_PERMISSION_ID
 import com.example.bhdemo.utils.Utilities.Companion.PERMISSION_CAMERA_REQUEST_CODE
+import com.example.bhdemo.utils.Utilities.Companion.appSettingOpen
+import com.example.bhdemo.utils.Utilities.Companion.warningPermissionDialog
 import com.vmadalin.easypermissions.EasyPermissions
 import com.vmadalin.easypermissions.dialogs.SettingsDialog
 
-/*
-
- */
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding : ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
+
+    private val multiPermissionList = if(Build.VERSION.SDK_INT >= 33) {
+        arrayListOf(
+            android.Manifest.permission.CAMERA,
+            android.Manifest.permission.RECORD_AUDIO,
+            android.Manifest.permission.MODIFY_AUDIO_SETTINGS,
+            android.Manifest.permission.CAPTURE_AUDIO_OUTPUT,
+            android.Manifest.permission.READ_MEDIA_AUDIO,
+            android.Manifest.permission.READ_MEDIA_VIDEO,
+            android.Manifest.permission.READ_MEDIA_IMAGES,
+        )
+    } else {
+        arrayListOf(
+            android.Manifest.permission.CAMERA,
+            android.Manifest.permission.RECORD_AUDIO,
+            android.Manifest.permission.MODIFY_AUDIO_SETTINGS,
+            android.Manifest.permission.CAPTURE_AUDIO_OUTPUT,
+            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,60 +62,69 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
 
-        binding.apply {
-            if (hasPermissions()){
-                Toast.makeText(this@MainActivity, "All Permissions Granted", Toast.LENGTH_LONG).show()
+        binding.btnRequest.setOnClickListener {
+            if (checkMultiplePermission()) {
+                doOperation()
             }
-
-            btnRequest.setOnClickListener {
-                requestPermissions()
-            }
-
-            requestPermissions()
-
         }
 
     }
 
-
-    private fun requestPermissions() {
-        EasyPermissions.requestPermissions(
-            this,
-            getString(R.string.request_permission),
-            PERMISSION_CAMERA_REQUEST_CODE,
-            CAMERA,
-            RECORD_AUDIO,
-            MODIFY_AUDIO_SETTINGS,
-            CAPTURE_AUDIO_OUTPUT,
-            READ_EXTERNAL_STORAGE,
-            WRITE_EXTERNAL_STORAGE
-        )
+    private fun doOperation() {
+        Toast.makeText(this, "All Permissions Granted Successfully!", Toast.LENGTH_LONG).show()
     }
 
+    private fun checkMultiplePermission(): Boolean {
+        val listPermissionNeeded = arrayListOf<String>()
 
-    private fun hasPermissions() =
-        EasyPermissions.hasPermissions(
-            this,
-            CAMERA,
-            RECORD_AUDIO,
-            MODIFY_AUDIO_SETTINGS,
-            CAPTURE_AUDIO_OUTPUT,
-            READ_EXTERNAL_STORAGE,
-            WRITE_EXTERNAL_STORAGE
-        )
+        for (permission in multiPermissionList) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                listPermissionNeeded.add(permission)
+            }
+        }
 
+        if (listPermissionNeeded.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionNeeded.toTypedArray(), MULTIPLE_PERMISSION_ID)
+            return false
+        }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        return true
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray, ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
-    }
+        if (requestCode == MULTIPLE_PERMISSION_ID) {
+            if (grantResults.isNotEmpty()) {
+                var isGrant = true
+                for (element in grantResults) {
+                    if (element == PackageManager.PERMISSION_DENIED) {
+                        isGrant = false
+                    }
+                }
 
-    fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
-        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-            SettingsDialog.Builder(this).build().show()
-        } else {
-            requestPermissions()
+                if (isGrant) {
+                    doOperation()
+                } else {
+                    var someDenied = false
+                    for (permission in permissions) {
+                        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
+                            if (ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_DENIED) {
+                                someDenied = true
+                            }
+                        }
+                    }
+
+                    if (someDenied) {
+                        appSettingOpen(this)
+                    } else {
+                        warningPermissionDialog(this){ _:DialogInterface, which:Int ->
+                            when (which) {
+                                DialogInterface.BUTTON_POSITIVE -> checkMultiplePermission()
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
-
 }
