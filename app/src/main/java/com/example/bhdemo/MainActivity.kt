@@ -37,13 +37,17 @@ class MainActivity : AppCompatActivity() {
             android.Manifest.permission.RECORD_AUDIO,
             android.Manifest.permission.READ_MEDIA_AUDIO,
             android.Manifest.permission.READ_MEDIA_IMAGES,
+            android.Manifest.permission.BLUETOOTH_CONNECT,
+            android.Manifest.permission.BLUETOOTH_SCAN
         )
     } else {
         arrayListOf(
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.RECORD_AUDIO,
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            android.Manifest.permission.BLUETOOTH,
+            android.Manifest.permission.BLUETOOTH_ADMIN
         )
     }
 
@@ -55,22 +59,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set click listener for the button
-//        binding.btnRequest.setOnClickListener {
-//            // Check and request multiple permissions
-//            if (checkMultiplePermission()) {
-//                // Perform the operation if all permissions are granted
-//                doOperation()
-//            }
-//        }
 
         if (checkMultiplePermission()) {
             doOperation()
         }
 
-        binding.scan.setOnClickListener {
-            startActivity(Intent(this, BluetoothActivity::class.java))
-        }
+
     }
 
     // Method to perform the desired operation
