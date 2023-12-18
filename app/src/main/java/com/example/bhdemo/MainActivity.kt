@@ -1,6 +1,13 @@
 package com.example.bhdemo
 
+import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -10,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.bhdemo.databinding.ActivityMainBinding
 import com.example.bhdemo.utils.Utilities.Companion.MULTIPLE_PERMISSION_ID
+import com.example.bhdemo.utils.Utilities.Companion.REQUEST_ENABLE_BT
 import com.example.bhdemo.utils.Utilities.Companion.appSettingOpen
 import com.example.bhdemo.utils.Utilities.Companion.warningPermissionDialog
 
@@ -39,6 +47,8 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Inflate the layout using view binding
@@ -46,19 +56,29 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Set click listener for the button
-        binding.btnRequest.setOnClickListener {
-            // Check and request multiple permissions
-            if (checkMultiplePermission()) {
-                // Perform the operation if all permissions are granted
-                doOperation()
-            }
+//        binding.btnRequest.setOnClickListener {
+//            // Check and request multiple permissions
+//            if (checkMultiplePermission()) {
+//                // Perform the operation if all permissions are granted
+//                doOperation()
+//            }
+//        }
+
+        if (checkMultiplePermission()) {
+            doOperation()
+        }
+
+        binding.scan.setOnClickListener {
+            startActivity(Intent(this, BluetoothActivity::class.java))
         }
     }
 
     // Method to perform the desired operation
     private fun doOperation() {
         Toast.makeText(this, "All Permissions Granted Successfully!", Toast.LENGTH_LONG).show()
+
     }
+
 
     // Method to check and request multiple permissions
     private fun checkMultiplePermission(): Boolean {
@@ -71,6 +91,7 @@ class MainActivity : AppCompatActivity() {
                 listPermissionNeeded.add(permission)
             }
         }
+
 
         // Request permissions if needed
         if (listPermissionNeeded.isNotEmpty()) {

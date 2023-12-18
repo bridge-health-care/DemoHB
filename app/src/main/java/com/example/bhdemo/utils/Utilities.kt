@@ -15,6 +15,7 @@ class Utilities {
     companion object {
         // Constant representing the request code for multiple permissions
         const val MULTIPLE_PERMISSION_ID = 14
+        const val REQUEST_ENABLE_BT = 15
 
         /**
          * Open app settings to allow the user to enable necessary permissions.
