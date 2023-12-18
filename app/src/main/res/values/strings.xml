@@ -4,4 +4,5 @@
     <string name="granted_msg">All the permissions are granted…</string>
     <string name="not_granted_msg">All the permissions are not granted…</string>
     <string name="request_msg">These permissions are required for this application.</string>
+    <string name="textview">TextView</string>
 </resources>
