@@ -1,33 +1,16 @@
 package com.example.bhdemo
 
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.Dialog
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.view.Window
-import android.widget.ListView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.bhdemo.adapter.BluetoothDeviceAdapter
 import com.example.bhdemo.databinding.ActivityMainBinding
-import com.example.bhdemo.models.BluetoothDeviceInfo
-import com.example.bhdemo.utils.BluetoothDiscoverReceiver
 import com.example.bhdemo.utils.Utilities.Companion.MULTIPLE_PERMISSION_ID
-import com.example.bhdemo.utils.Utilities.Companion.REQUEST_DISCOVERABLE
-import com.example.bhdemo.utils.Utilities.Companion.REQUEST_ENABLE_BT
 import com.example.bhdemo.utils.Utilities.Companion.appSettingOpen
 import com.example.bhdemo.utils.Utilities.Companion.warningPermissionDialog
 
@@ -38,10 +21,6 @@ import com.example.bhdemo.utils.Utilities.Companion.warningPermissionDialog
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var receiver : BluetoothDiscoverReceiver
-    private lateinit var bluetoothAdapter: BluetoothAdapter
-    private val bluetoothDevicesList = mutableListOf<BluetoothDevice>()
-    private lateinit var adapter : BluetoothDeviceAdapter
 
 
     private val multiPermissionList = if (Build.VERSION.SDK_INT >= 33) {
@@ -75,24 +54,13 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        receiver
-        receiver = BluetoothDiscoverReceiver()
-//        bluetooth adapter
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-
-        adapter = BluetoothDeviceAdapter(this, bluetoothDevicesList)
 
         if (checkMultiplePermission()) {
             doOperation()
         }
 
         binding.scan.setOnClickListener {
-            if (!bluetoothAdapter.isEnabled) {
-                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
-            } else {
-                scanNearByBluetoohDevices()
-            }
+            startActivity(Intent(this, BluetoothActivity::class.java))
         }
 
     }
@@ -178,56 +146,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-
-    @SuppressLint("MissingPermission")
-    private fun scanNearByBluetoohDevices() {
-        Toast.makeText(this, "Bluetooth discovery allowed", Toast.LENGTH_SHORT).show()
-        val discoverDevicesIntent = IntentFilter(BluetoothDevice.ACTION_FOUND)
-        registerReceiver(nearbyBluetoothReceiver, discoverDevicesIntent)
-        bluetoothAdapter.startDiscovery()
-    }
-
-    @SuppressLint("MissingPermission")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_ENABLE_BT) {
-            if (resultCode == Activity.RESULT_OK) {
-                scanNearByBluetoohDevices()
-            }
-        }
-    }
-
-    private val nearbyBluetoothReceiver = object : BroadcastReceiver() {
-        @SuppressLint("MissingPermission")
-        override fun onReceive(context: Context, intent: Intent) {
-            val action = intent.action
-            if (BluetoothDevice.ACTION_FOUND == action) {
-                val device: BluetoothDevice? = intent.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
-                // Add the device to a list or display its name and address
-                if (device != null) {
-                    bluetoothDevicesList.add(device)
-                    adapter.notifyDataSetChanged()
-                }
-                showCustomDialog()
-            }
-        }
-    }
-
-    private fun showCustomDialog() {
-        val dialog = Dialog(this)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.bt_dialog) // Replace with your layout file name
-
-        val listView: ListView = dialog.findViewById(R.id.bt_list) // Replace with your ListView ID
-        listView.adapter = adapter
-        dialog.show()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(receiver)
-        unregisterReceiver(nearbyBluetoothReceiver)
-    }
 
 }
