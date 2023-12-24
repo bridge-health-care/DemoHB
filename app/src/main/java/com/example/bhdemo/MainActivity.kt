@@ -42,7 +42,9 @@ class MainActivity : AppCompatActivity() {
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
             android.Manifest.permission.BLUETOOTH,
-            android.Manifest.permission.BLUETOOTH_ADMIN
+            android.Manifest.permission.BLUETOOTH_ADMIN,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
         )
     }
 
@@ -59,9 +61,6 @@ class MainActivity : AppCompatActivity() {
             doOperation()
         }
 
-        binding.scan.setOnClickListener {
-            startActivity(Intent(this, BluetoothActivity::class.java))
-        }
 
     }
 
@@ -69,6 +68,13 @@ class MainActivity : AppCompatActivity() {
     // Method to perform the desired operation
     private fun doOperation() {
         Toast.makeText(this, "All Permissions Granted Successfully!", Toast.LENGTH_LONG).show()
+        binding.scan.setOnClickListener {
+            startActivity(Intent(this, BluetoothActivity::class.java))
+        }
+
+        binding.fingerPrint.setOnClickListener {
+            startActivity(Intent(this, SecugenFingerPrint::class.java))
+        }
     }
 
 

@@ -9,14 +9,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.example.bhdemo.brodcastreceiver.BluetoothDiscoverabilityReceiver
 import com.example.bhdemo.brodcastreceiver.BluetoothReceiver
 import com.example.bhdemo.databinding.ActivityBluetoothBinding
+
 
 class BluetoothActivity : AppCompatActivity() {
 
@@ -61,6 +62,7 @@ class BluetoothActivity : AppCompatActivity() {
         binding.scanDevices.setOnClickListener {
             discoverDevices()
         }
+
     }
 
 
@@ -85,20 +87,20 @@ class BluetoothActivity : AppCompatActivity() {
                 action = intent.action.toString()
             }
             when(action){
-                BluetoothAdapter.ACTION_STATE_CHANGED ->{
+                BluetoothAdapter.ACTION_STATE_CHANGED -> {
                     Log.d("myTAG","STATE CHANGED")
                 }
-                BluetoothAdapter.ACTION_DISCOVERY_STARTED ->{
+                BluetoothAdapter.ACTION_DISCOVERY_STARTED -> {
                     Log.d("myTAG","Discovery Started")
                     discoveredDevices.clear()
                     progressDialog.show()
                 }
-                BluetoothAdapter.ACTION_DISCOVERY_FINISHED ->{
+                BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
                     Log.d("myTAG","Discovery Finished")
                     progressDialog.dismiss()
                     showDiscoveredDevicesDialog()
                 }
-                BluetoothDevice.ACTION_FOUND ->{
+                BluetoothDevice.ACTION_FOUND -> {
                     val device = intent?.getParcelableExtra<BluetoothDevice>(BluetoothDevice.EXTRA_DEVICE)
                     if(device!=null){
                         Log.d("myTAG","${device.name}  ${device.address}")
@@ -120,7 +122,6 @@ class BluetoothActivity : AppCompatActivity() {
 
             builder.setItems(deviceNames) { _, position ->
                 val selectedDevice = discoveredDevices[position]
-                Toast.makeText(this, selectedDevice.name, Toast.LENGTH_LONG).show()
                 // Add your logic to handle the selected discovered device
                 val progressDialog = ProgressDialog(this)
                 progressDialog.setMessage("Connecting to ${selectedDevice.name}...")
@@ -135,6 +136,7 @@ class BluetoothActivity : AppCompatActivity() {
                     }
                     BluetoothDevice.BOND_BONDING -> {
                         Log.d("MyTag", "${selectedDevice.name} bonding")
+                        progressDialog.dismiss()
                     }
                     BluetoothDevice.BOND_BONDED -> {
                         Log.d("MyTag", "${selectedDevice.name} bonded")

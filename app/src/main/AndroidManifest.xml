@@ -32,6 +32,11 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+
+<!--    finger print-->
+    <uses-feature android:name="android.hardware.usb.host" />
+    <uses-permission android:name="android.permission.USB_PERMISSION" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -42,6 +47,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BHDemo"
         tools:targetApi="31">
+        <activity
+            android:name=".SecugenFingerPrint"
+            android:exported="true">
+        </activity>
         <activity
             android:name=".BluetoothActivity"
             android:exported="false" />
